@@ -1,0 +1,6 @@
+"starwarsrp"
+{
+	"base"		"sandbox"
+	"title"		"SWRP [Hydra Networks]"
+	"menusystem"	"1"
+}
