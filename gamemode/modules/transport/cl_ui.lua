@@ -23,7 +23,6 @@ local function CreateBlackScreen( newPlanet )
             if self:GetAlpha() <= 0 then
                 self:Close()
                 Falcon.HasNPCSpeaking = false
-
             end
         end
     end
