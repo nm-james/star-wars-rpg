@@ -10,6 +10,6 @@ function GM:ScalePlayerDamage( ply, hitgroup, dmginfo )
         local aLevel = attacker.Level
         local pLevel = ply:GetLevel()
         print("DAMAGE CALC")
-        dmginfo:ScaleDamage( math.Clamp( aLevel / pLevel, 0.2, 999999999 ) )
+        dmginfo:ScaleDamage( math.Clamp( aLevel / pLevel, 0, 999999999 ) )
     end
 end

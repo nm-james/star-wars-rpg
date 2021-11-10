@@ -40,7 +40,9 @@ net.Receive("FALCON:SENDCONTENT", function()
 	end
 
 	LoadTransportFromPlanets("Venator")
+	LocalPlayer().Location = "Venator"
 end)
+
 
 
 function ThirdPersonCalc( ply, pos, angles, fov )
