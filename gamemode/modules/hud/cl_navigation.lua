@@ -1,4 +1,9 @@
 Falcon = Falcon or {}
+local repLogo = Material("f_coop/republic.png")
+local healthIcon = Material("f_coop/health.png")
+local shieldIcon = Material("f_coop/shield.png")
+local lvlIcon = Material("f_coop/levels.png")
+local creditIcon = Material("f_coop/credits.png")
 
 hook.Add("HUDPaint", "DrawFalconHUD", function()
     local w, h = ScrW(), ScrH()
