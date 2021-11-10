@@ -32,7 +32,7 @@ local function CreateBlackScreen( newPlanet )
     net.Start("FALCON:TRANSPORT:TELEPORT")
         net.WriteUInt( transport.ActiveTransport.Dropzone, 32 )
         net.WriteString( newPlanet )
-        net.WriteUInt( newDrop, 32 )
+        net.WriteUInt( nextDrop, 32 )
     net.SendToServer()
 
     timer.Simple(2, function()
