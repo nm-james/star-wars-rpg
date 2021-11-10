@@ -58,8 +58,8 @@ Falcon.Transports["Naboo"] = {
     },
     Dropzones = {
         {
-            Name = "Main Hangar",
-            Pos = Vector(2539.986572, -5481.141113, 12891.934570),
+            Name = "Theed Hangar",
+            Pos = Vector( 2074, -7947, 8325 ),
             Ang = Angle(0, 90, 0),
             Wallpaper = "f_coop/navigation/geonosis_2.jpg",
             Requirement = function( ply )
