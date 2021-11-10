@@ -25,4 +25,5 @@ end
 util.AddNetworkString("F:SW:Player:Loaded")
 net.Receive("F:SW:Player:Loaded", function( len, ply )
     Falcon.SyncPlayerContent( ply )
+    ply.Location = "Venator"
 end)

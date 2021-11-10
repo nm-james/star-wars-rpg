@@ -211,6 +211,7 @@ if CLIENT then
             clientModel:SetAngles( d.Ang )
             clientModel.Interaction = "Use Transport"
             clientModel.FalconClient = true
+            clientModel.Dropzone = _
             clientModel.Next = function()
                 FadeFrame( function()
                     return OpenNavigation( clientModel )

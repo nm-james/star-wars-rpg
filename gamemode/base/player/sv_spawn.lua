@@ -5,5 +5,5 @@ function GM:PlayerSpawn(ply, transition)
     ply:SetPos( Vector( 4097, -5771, 12905 ) )
     ply:SetAngles( Angle( 0, 180, 0 ) )
     ply:SetModel("models/jajoff/sps/alpha/tc13j/coloured_regular01.mdl")
-    ply:SetPlayerColor( Vector( 1, 0, 0 ) )
+    ply:SetPlayerColor( Vector( 1, 1, 1 ) )
 end

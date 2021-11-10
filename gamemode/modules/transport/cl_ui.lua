@@ -10,6 +10,8 @@ local padlockIcon = Material("f_coop/padlock.png")
 local blur = Material( "pp/blurscreen" )
 
 local function CreateBlackScreen( newPlanet )
+    local nextDrop = transport.NextPlanet
+
     local f = vgui.Create("DFrame")
     f:SetSize( ScrW(), ScrH() )
     f:Center()
@@ -26,6 +28,12 @@ local function CreateBlackScreen( newPlanet )
             end
         end
     end
+
+    net.Start("FALCON:TRANSPORT:TELEPORT")
+        net.WriteUInt( transport.ActiveTransport.Dropzone, 32 )
+        net.WriteString( newPlanet )
+        net.WriteUInt( newDrop, 32 )
+    net.SendToServer()
 
     timer.Simple(2, function()
         f.ShouldFade = true
@@ -167,7 +175,7 @@ local function CreateDropzoneButtons( data, parent )
 
 end
 
-local function CreateDropzonesFrame( planet )
+local function CreateDropzonesFrame( planet, planetID )
     if transport.Frame and transport.Frame:IsValid() then return end
     transport.NextPlanet = false
     transport.ActiveNextPosPnl = false
@@ -266,7 +274,7 @@ local function CreateDropzonesFrame( planet )
                 self.SettingUpNextPlanet = false
 
                 FadeFrame( function()
-                    return CreateBlackScreen( planet )
+                    return CreateBlackScreen( planetID )
                 end, transport.Frame )
                 
                 transport.NextPlanet = nil
@@ -280,7 +288,7 @@ local function CreateDropzonesFrame( planet )
     return f
 end
 
-local function CreatePlanetButton( planet )
+local function CreatePlanetButton( planet, planetID )
     local parent = transport.Frame
     local w, h = parent:GetWide(), parent:GetTall()
 
@@ -342,7 +350,7 @@ local function CreatePlanetButton( planet )
     stuffBtn.DoClick = function( self )
         if req then
             FadeFrame( function()
-                return CreateDropzonesFrame( planet )
+                return CreateDropzonesFrame( planet, planetID )
             end, transport.Frame )
         end
     end
@@ -422,7 +430,7 @@ local function UI()
     local f = transport.Frame
 
     for _, d in pairs( Falcon.Transports ) do
-        CreatePlanetButton( d )
+        CreatePlanetButton( d, _ )
     end
 end
 
