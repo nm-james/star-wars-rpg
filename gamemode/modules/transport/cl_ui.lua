@@ -29,6 +29,9 @@ local function CreateBlackScreen( newPlanet )
         end
     end
 
+    LocalPlayer().Location = newPlanet
+    LoadTransportFromPlanets( newPlanet )
+
     net.Start("FALCON:TRANSPORT:TELEPORT")
         net.WriteUInt( transport.ActiveTransport.Dropzone, 32 )
         net.WriteString( newPlanet )
