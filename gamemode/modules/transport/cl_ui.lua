@@ -35,6 +35,8 @@ local function CreateBlackScreen( newPlanet )
         net.WriteUInt( nextDrop, 32 )
     net.SendToServer()
 
+    transport.NextPlanet = nil
+    
     timer.Simple(2, function()
         f.ShouldFade = true
     end)
@@ -275,9 +277,7 @@ local function CreateDropzonesFrame( planet, planetID )
 
                 FadeFrame( function()
                     return CreateBlackScreen( planetID )
-                end, transport.Frame )
-                
-                transport.NextPlanet = nil
+                end, transport.Frame )                
             end
         else
             self.SettingUpNextPlanet = false
