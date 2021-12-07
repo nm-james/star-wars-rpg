@@ -78,16 +78,21 @@ function ENT:Initialize()
 	self:GiveWeapon()
 
 	local mods = {}
+
 	for id, mod in pairs( self.Modifiers ) do
 		if #mods >= 5 then break end
 		local modifiyTest = math.random(-(#self.Modifiers * 5), #self.Modifiers)
 		if modifiyTest <= 0 then continue end
-		self:SetNWBool("FALCON:MODIFIERS:" .. tostring(id), true)
-		modifierFunctions[id]( self )
 		table.insert(mods, id)
 	end
 
-	self.Mods = mods
+	self.Mods = self.Mods or mods
+
+	for _, mod in pairs( self.Mods ) do
+		self:SetNWBool("FALCON:MODIFIERS:" .. tostring(mod), true)
+		modifierFunctions[mod]( self )
+	end
+	
     self.NextAttackSeq = 21
 end
 

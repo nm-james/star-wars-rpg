@@ -152,12 +152,12 @@ end
 
 f.LoadGrids = function( self )
     local w, h = self:GetWide(), self:GetTall()
-    for y = 1, 20 do
+    for y = 1, 30 do
         Falcon.UI.Inventory.GridsData[y] = {}
-        for x = 1, 25 do
+        for x = 1, 24 do
             local p = vgui.Create("DButton", self)
-            p:SetSize( w * 0.0375, w * 0.0375 )
-            p:SetPos( h * (0.01 + (0.08625 * (x - 1))), h * (0.01 + (0.086 * (y - 1))) )
+            p:SetSize( w * 0.039, w * 0.039 )
+            p:SetPos( h * (0.01 + (0.0942 * (x - 1))), h * (0.01 + (0.09325 * (y - 1))) )
             p:SetText("")
             p.Paint = function( self, w, h )
                 if self.item then return end
@@ -192,15 +192,16 @@ end
 f.OpenInventoryGrid = function( parent )
     local w, h = parent:GetWide(), parent:GetTall()
     local p = vgui.Create( "DPanel", parent )
-    p:SetSize( w * 0.86, h * 0.65 )
-    p:SetPos( w * 0.14, h * 0.35 )
+    p:SetSize( w, h )
+    p:SetPos( 0, 0 )
     p.Paint = function( self, w, h )
         surface.SetDrawColor( shadowOverlay )
         surface.DrawRect( 0, 0, w, h )
     end
 
     local cP = vgui.Create("DScrollPanel", p)
-    cP:SetSize( p:GetWide(), p:GetTall() * 0.99 )
+    cP:SetSize( p:GetWide() * 1.011, p:GetTall() * 0.985 )
+    cP:SetPos( 0, p:GetTall() * 0.0075 )
 
 
     f.GridActive = {}

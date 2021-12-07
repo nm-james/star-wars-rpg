@@ -82,7 +82,15 @@ local function SQLInitialize()
     ]])
     print("Class Regiments: ", sql.TableExists("Classes_Regiments"))
 
-    
+    sql.Query([[CREATE TABLE IF NOT EXISTS Users_Quests
+        (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            quest NUMBER,
+            status NUMBER,
+            user NUMBER
+        ) 
+    ]])
+    print("User Quests: ", sql.TableExists("Users_Quests"))
 
     print("SWRP Database has been connected!")
 
@@ -105,9 +113,11 @@ local function SQLInitialize()
     SortNewData( Falcon.Items )
 end
 
--- sql.Query("DROP TABLE Classes")
+-- sql.Query("DROP TABLE Users_Quests")
+-- PrintTable(sql.Query( "SELECT * FROM Users_Quests"))
+-- SQLInitialize()
+
 -- sql.Query("DELETE FROM Classes_Regiments")
 -- sql.Query("DROP TABLE Items")
 
 hook.Add("Initialize", "F_SQL_INIT", SQLInitialize)
--- SQLInitialize()

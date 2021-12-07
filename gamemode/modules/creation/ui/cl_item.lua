@@ -43,7 +43,9 @@ f.CreateNewItem = function( parent )
     end } )
 end
 
+f.LoadItemDetails = function( parent, item )
 
+end
 
 f.LoadItemsInPanel = function( scroll, it )
     local dullPnl = vgui.Create("DPanel", scroll)
@@ -58,6 +60,7 @@ f.LoadItemsInPanel = function( scroll, it )
             surface.SetDrawColor( color_white )
             surface.DrawLine( 0, h * 0.99, w, h * 0.99 )
         end, click = function( self )
+            f.LoadItemDetails( )
         end } )
         b:Dock( TOP )
 
@@ -94,6 +97,8 @@ f.LoadItemCreation = function( parent )
     local bW, bH = banner:GetWide(), banner:GetTall()
     addItems:SetSize( bH, bH )
     addItems:SetPos( bW - bH, 0 )
-
     f.LoadItemsInPanel( items, t )
+
+    local itemDetails, t, banner = Falcon.UI.Presets.Panel.CreateBanneredPanel( parent, 0.69, 0.99, 0.31, 0.01, { text = "ITEM PREVIEW"} )
+
 end

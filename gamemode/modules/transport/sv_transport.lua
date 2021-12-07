@@ -11,6 +11,12 @@ net.Receive("FALCON:TRANSPORT:TELEPORT", function( len, ply )
 
         local newLoc = Falcon.Transports[nextLocation].Dropzones[nextDropzone]
         ply.Location = nextLocation
-        ply:SetPos( newLoc.Pos )
+        local pos = newLoc.Spawn
+        if pos then
+            pos = pos + Vector( math.random(-125, 125), math.random(-125, 125), 10 )
+        else
+            pos = newLoc.Pos + Vector( math.random(-300, 300), math.random(-300, 300), 10 )
+        end
+        ply:SetPos( pos )
     end
 end)

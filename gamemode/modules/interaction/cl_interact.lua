@@ -10,7 +10,10 @@ local function DrawNPCsInteractions()
     local w, h = ScrW(), ScrH()
 
     for _, ent in pairs( Falcon.InteractionActiveEntities ) do
-        if not ent.FalconClient then continue end
+        if not ent.Interaction then continue end
+        if ent.Name and ent.Name == "JIMMY! [NO NAME]" then continue end
+        if ent.Options and table.IsEmpty(ent.Options.Dialogue) then continue end
+
         local s = (ent:GetPos() + Vector( 0, 0, 50 )):ToScreen()
         
         draw.NoTexture()
@@ -18,7 +21,7 @@ local function DrawNPCsInteractions()
         surface.SetMaterial(diagonal)
         surface.DrawTexturedRect( s.x - (w * 0.05 / 2), s.y - (w * 0.05 / 2), w * 0.05, w * 0.05 )
 
-        if s.x > (w * 0.475) and s.x < (w * 0.525) and s.y > ((h * 0.5) - (w * 0.05 / 2)) and s.y < ((h * 0.5) + (w * 0.05 / 2)) and ply:GetPos():DistToSqr( ent:GetPos() ) < 50000 then
+        if s.x > (w * 0.475) and s.x < (w * 0.525) and s.y > ((h * 0.5) - (w * 0.05 / 2)) and s.y < ((h * 0.5) + (w * 0.05 / 2)) and ply:GetPos():DistToSqr( ent:GetPos() ) < (ent.InteractDistance or 2000) then
             if Falcon.StartInteractionTime ~= 0 then
                 local nextI = (ent.InteractionTime or 1)
                 local percentageInteracted = ((CurTime() - Falcon.StartInteractionTime) / nextI)
@@ -38,9 +41,24 @@ local function DrawNPCsInteractions()
         end
     end
 end
+local function DrawNPCNames()
+    if Falcon.HasNPCSpeaking then return end
+    local ply = LocalPlayer()
+    local w, h = ScrW(), ScrH()
+
+    for _, npc in pairs( Falcon.InteractionActiveEntities ) do
+        if ply:GetPos():DistToSqr( npc:GetPos() ) > 20000 then continue end
+        cam.Start3D2D( npc:GetPos() + Vector( 0, 0, 100 ), Angle( 0, ply:GetAngles().y - 90, 90 ), 0.1 )
+            draw.DrawText(npc.Name or "", "F20", 0, 132, Color(125,125,125,255), TEXT_ALIGN_CENTER)
+            -- draw.DrawText(npc.Occupation, "F15_CAMERA", 0, 197, Color(75,75,75,255), TEXT_ALIGN_CENTER)
+            -- draw.DrawText(sides[npc.Allegience], "F11_CAMERA", 0, 225, GetOccupationColor(npc.Allegience), TEXT_ALIGN_CENTER)
+        cam.End3D2D()
+    end
+end
 
 
 local function InteractHandler()
+    if Falcon.HasNPCSpeaking then return end
     local ply = LocalPlayer()
     Falcon.InteractionActiveEntities = {}
     local cone = ents.FindInCone( ply:EyePos(), ply:GetAimVector(), 400, math.cos( math.rad( 50 ) ) )
@@ -58,5 +76,6 @@ local function InteractHandler()
     end
 end
 
-hook.Add("HUDPaint", "DrawNPCsInteractions", DrawNPCsInteractions)
 hook.Add("Think", "InteractHandler", InteractHandler)
+hook.Add("HUDPaint", "DrawNPCsInteractions", DrawNPCsInteractions)
+hook.Add("PostDrawOpaqueRenderables", "DrawNPCsOverhead", DrawNPCNames)

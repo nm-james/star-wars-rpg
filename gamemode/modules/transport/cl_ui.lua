@@ -31,7 +31,7 @@ local function CreateBlackScreen( newPlanet )
 
     LocalPlayer().Location = newPlanet
     LoadTransportFromPlanets( newPlanet )
-
+    
     net.Start("FALCON:TRANSPORT:TELEPORT")
         net.WriteUInt( transport.ActiveTransport.Dropzone, 32 )
         net.WriteString( newPlanet )
@@ -71,7 +71,7 @@ local function CreateDropzoneButtons( data, parent )
         img:SetKeepAspect( true )
         img:SetImage(drp.Wallpaper)
         -- p:SetPos( w * (v.x or 0.3), w * (v.y or 0.3) )
-        local req = drp.Requirement()
+        local req = drp.Requirement( ply )
 
         local btn = vgui.Create("DButton", p)
         btn:Dock( FILL )
@@ -107,41 +107,40 @@ local function CreateDropzoneButtons( data, parent )
                 end
                 self.Alpha = math.Clamp( self.Alpha - ((FrameTime() * 5) * 255), 0, 185)
             end
-        else
-            local completed = Falcon.User.Quests.Completed
+        end
+        local completed = Falcon.User.Quests.Completed
 
-            local i = 0
-            local amountCompleted = 0
-            for _, quest in pairs( requirements.Quests ) do
-                if completed[quest] then
-                    amountCompleted = amountCompleted + 1
-                end
-
-                if i >= 2 then continue end
-
-                if text ~= "QUESTS: " then
-                    text = text .. ", " .. string.upper(quest)
-                else
-                    text = text .. string.upper(quest)
-                end
-                i = i + 1
+        local qu = 0
+        local amountCompleted = 0
+        for _, quest in pairs( requirements.Quests or {} ) do
+            if completed[quest] then
+                amountCompleted = amountCompleted + 1
             end
 
-            if i < table.Count( requirements.Quests ) then
-                text = text .. " AND MORE..."
-            end
+            if qu >= 2 then continue end
 
-            if text == "QUESTS: " then
-                text = ""
+            if text ~= "QUESTS: " then
+                text = text .. ", " .. string.upper(quest)
+            else
+                text = text .. string.upper(quest)
             end
+            qu = qu + 1
+        end
 
-            if amountCompleted == #requirements.Quests then
-                questsColor = Color( 177, 177, 177 )
-            end
+        if qu < table.Count( requirements.Quests ) then
+            text = text .. " AND MORE..."
+        end
 
-            if ply:GetLevel() >= requirements.Level then
-                lvlColor = Color( 242, 242, 242 )
-            end
+        if text == "QUESTS: " then
+            text = ""
+        end
+
+        if amountCompleted == #requirements.Quests then
+            questsColor = Color( 177, 177, 177 )
+        end
+
+        if ply:GetLevel() >= requirements.Level then
+            lvlColor = Color( 242, 242, 242 )
         end
 
         btn.Paint = function( self, w, h )
@@ -237,11 +236,12 @@ local function CreateDropzonesFrame( planet, planetID )
     dockPnl.Paint = nil
 
     CreateDropzoneButtons( planet.Dropzones, dockPnl )
-
     local nextBtn = vgui.Create("DButton", f)
     nextBtn:SetSize( f:GetWide() * 0.75, f:GetTall() * 0.04 )
     nextBtn:SetPos( f:GetWide() * 0.125, f:GetTall() * 0.725 )
     nextBtn:SetText( "" )
+    nextBtn.CurColor = Color( 240, 240, 240, 255 )
+
     nextBtn.Paint = function( self, w, h )
         if not transport.NextPlanet then return end
         surface.SetDrawColor( self.CurColor )
@@ -251,33 +251,24 @@ local function CreateDropzonesFrame( planet, planetID )
             surface.DrawRect( w * 0.002, w * 0.002, w * 0.997 * ((CurTime() - self.SettingUpNextPlanet) / 2), h - ((w * 0.0015) * 2) )
         end
 
-
         draw.SimpleTextOutlined(self.SimpleText or "", "F14", w * 0.5, h * 0.06, self.CurColor, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 1, Color( 0, 0, 0, 255 ) )
     end
     nextBtn.Think = function( self, w, h )
         if not transport.NextPlanet then return end
-        local palyerrysast = player.GetAll()
-        local nextPlys = 0
-        for _, p in pairs( palyerrysast ) do
-            if p:GetPos():DistToSqr( transport.ActiveTransport:GetPos() ) < 250000 then
-                nextPlys = nextPlys + 1
-            end
-        end
 
-        if nextPlys < #palyerrysast then
-            self.CurColor = Color( 175, 55, 55, 255 )
-            self.SimpleText = "Your Squad is not Close Enough to use Transport"
-        else
-            self.CurColor = Color( 240, 240, 240, 255 )
+        -- if nextPlys < #palyerrysast then
+        --     self.CurColor = Color( 175, 55, 55, 255 )
+        --     self.SimpleText = "Your Squad is not Close Enough to use Transport"
+        -- else
+        --     self.CurColor = Color( 240, 240, 240, 255 )
             self.SimpleText = "Hold to Transport to " .. planet.Dropzones[transport.NextPlanet].Name
-        end
+        -- end
 
-        if input.IsMouseDown(MOUSE_LEFT) and self:IsHovered() and nextPlys >= #palyerrysast then
+        if input.IsMouseDown(MOUSE_LEFT) and self:IsHovered() then
             if not self.SettingUpNextPlanet then
                 self.SettingUpNextPlanet = CurTime()
             elseif self.SettingUpNextPlanet + 2 <= CurTime() then
                 self.SettingUpNextPlanet = false
-
                 FadeFrame( function()
                     return CreateBlackScreen( planetID )
                 end, transport.Frame )                

@@ -13,14 +13,13 @@ Falcon.UI.Presets.Other.CreateChangingScenes = function( frame, w, h, x, y, scen
     animP.CurrentScene = 1
     animP.SceneMultiplier = 0
     animP.ShouldFade = 0
-
-    local totalScenes = table.Count( scenes )
+    animP.Scenes = scenes
     animP.Think = function( self )
         local fr = FrameTime()
         if self.SceneMultiplier > 0.75 then
             self.ShouldFade = math.Clamp(self.ShouldFade + (fr * 0.8), 0, 1)
             if self.SceneMultiplier == 1 and self.ShouldFade == 1 then
-                if self.CurrentScene == totalScenes then
+                if self.CurrentScene == table.Count( self.Scenes ) then
                     self.CurrentScene = 1
                 else
                     self.CurrentScene = self.CurrentScene + 1
@@ -37,8 +36,8 @@ Falcon.UI.Presets.Other.CreateChangingScenes = function( frame, w, h, x, y, scen
         local x, y = self:GetPos()
         local old = DisableClipping( true )
         render.RenderView( {
-            origin = LerpVector(self.SceneMultiplier, scenes[self.CurrentScene].Start.Pos, scenes[self.CurrentScene].End.Pos),
-            angles = LerpAngle(self.SceneMultiplier, scenes[self.CurrentScene].Start.Ang, scenes[self.CurrentScene].End.Ang),
+            origin = LerpVector(self.SceneMultiplier, self.Scenes[self.CurrentScene].Start.Pos, self.Scenes[self.CurrentScene].End.Pos),
+            angles = LerpAngle(self.SceneMultiplier, self.Scenes[self.CurrentScene].Start.Ang, self.Scenes[self.CurrentScene].End.Ang),
             x = x, y = y,
             w = w, h = h
         } )

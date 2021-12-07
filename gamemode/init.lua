@@ -11,10 +11,7 @@ Falcon.CanCreate = {
 hook.Add("PlayerSay", "TESTINGTEXT", function( ply, text )
 
     if text == "/bone" then
-        for i = 0, ply:GetBoneCount() - 1 do
-            print( ply:GetBoneName( i ), i )
-        end
-
+        Falcon.GetUserID( ply )
     end
 
     if text == "/model" then
