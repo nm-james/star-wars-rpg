@@ -1,6 +1,6 @@
 AddCSLuaFile()
-
 ENT.Base 			= "base_nextbot"
+
 ENT.Spawnable		= false
 ENT.PrintName 		= "B1 Base"
 ENT.Name = "B1 Battledroid [BASE]"
@@ -27,6 +27,7 @@ ENT.Modifiers = {
 		text = "ANCHOR",
 	},
 }
+
 
 if SERVER then return end
 
@@ -111,3 +112,26 @@ function ENT:Draw()
         end
     cam.End3D2D()
 end
+
+net.Receive("FALCON:NEXTBOTS:CREATERAGDOLL", function()
+    local pos = net.ReadVector()
+
+    local effectdataspk = EffectData()
+	effectdataspk:SetOrigin( pos )
+	effectdataspk:SetScale( 90 )
+	util.Effect( "ManhackSparks", effectdataspk )
+
+    local effectdataexp = EffectData()
+    effectdataexp:SetOrigin( pos )
+    effectdataexp:SetScale(90)
+    util.Effect( "Explosion", effectdataexp )
+end)
+
+net.Receive("FALCON:NEXTBOTS:EFFECTS", function()
+    local pos = net.ReadVector()
+
+    local effectdataspk = EffectData()
+	effectdataspk:SetOrigin( pos + Vector( 0, 0, 50 ) )
+	effectdataspk:SetScale( 900 )
+	util.Effect( "ManhackSparks", effectdataspk )
+end)

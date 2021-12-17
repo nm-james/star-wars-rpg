@@ -99,9 +99,9 @@ net.Receive("FALCON:SENDCONTENT", function()
 	Falcon.Departments = newTbl.Departments
 	Falcon.Regiments = newTbl.Regiments
 	Falcon.Classes = newTbl.Classes
-	Falcon.Items = newTbl.Items
 	Falcon.Locations = newTbl.Locations
 	Falcon.NPCs = newTbl.NPCs
+	Falcon.Inventory = newTbl.Inventory
 	local sortedTbl = {}
 	for _, data in pairs( newTbl.Quests ) do
 		sortedTbl[data.quest] = data.status
@@ -144,7 +144,8 @@ function ThirdPersonCalc( ply, pos, angles, fov )
 
 	local fPos = tr.HitPos + (angles:Forward() * 12) + ( angles:Up() * 10 )
 
-	if input.IsMouseDown( MOUSE_RIGHT ) then
+	local wep = ply:GetActiveWeapon()
+	if input.IsMouseDown( MOUSE_RIGHT ) and (wep and wep:IsValid() and string.find(wep:GetClass(), "falcon")) then
 		fPos = fPos + (angles:Right() * 20) + (angles:Forward() * 45) + ( angles:Up() * -3 )
 	end
 
@@ -157,10 +158,32 @@ function ThirdPersonCalc( ply, pos, angles, fov )
 
 	return view
 end
--- hook.Add("CalcView", "FalconsThirdPerson", ThirdPersonCalc)
 
+local settings = {
+	Controls = {
+		["Thirdperson"] = KEY_B,
+		["Inventory Menus"] = KEY_I,
+		["Quest Tracker Menus"] = KEY_K,
+		["Settings Menus"] = KEY_O,
+		["Squad Menus"] = KEY_T,
+	},
+	Sound = {
+		["Player Menu Music"] = 1,
+		["Event Music"] = 1,
+		["World Music"] = 1,
+		["Ambience"] = 1,
+	},
+	Visual = {
+		["Display Players (When not in mission)"] = true,
+		["Display Non-Related NPCs (Only NPCs that can potentially target you)"] = true,
+		["Display Squad Members (Only when 'Display Players' is disabled)"] = true,
+	}
+}
+
+local playersHiding = false
 function GM:PlayerButtonDown(ply, key)
-    if key == KEY_B then
+    if key == settings.Controls["Thirdperson"] then
+		if Falcon.HasFalconWeapon then return end
         if ply.ThirdPersonTimer and ply.ThirdPersonTimer > CurTime() then return end
         if ply.ThirdPersonEnabled then
             hook.Remove("CalcView", "FalconsThirdPerson")
@@ -170,12 +193,44 @@ function GM:PlayerButtonDown(ply, key)
             ply.ThirdPersonEnabled = true
         end
 		ply.ThirdPersonTimer = CurTime() + 0.2
-	elseif key == KEY_I then
+	elseif key == settings.Controls["Inventory Menus"] then
 		Falcon.UI.Inventory.OpenFrame()
-	elseif key == KEY_O then
+	elseif key == settings.Controls["Quest Tracker Menus"] then
 		Falcon.UI.Quests.OpenFrame()
+	elseif key == settings.Controls["Squad Menus"] then
+		-- OPEN SQUAD MENU
+		print("ETTE")
+	elseif key == settings.Controls["Settings Menus"] then
+		-- OPEN SETTINGS MENU
 	elseif key == KEY_P then
 		OpenCharacters( true )
+	elseif key == KEY_M then
+		if ply.NextHideDelay and ply.NextHideDelay > CurTime() then return end
+		if not playersHiding then
+			playersHiding = true
+		else
+			playersHiding = false
+		end
+		for _, oply in pairs( player.GetAll() ) do
+			if oply == ply then continue end
+			oply:SetNoDraw( playersHiding )
+			local wep = oply:GetActiveWeapon()
+			if wep and wep:IsValid() then
+				wep:SetNoDraw( playersHiding )
+			end
+		end
+
+		for _, ent in pairs( ents.FindByClass("falcon_hostile*") ) do
+			ent:SetNoDraw( playersHiding )
+			for _, weapon in pairs( ents.FindByClass("falcon_npc_weapon") ) do
+				local par = weapon:GetParent()
+				if par == ent then
+					weapon:SetNoDraw( playersHiding )
+					break
+				end
+			end
+		end
+		ply.NextHideDelay = CurTime() + 1
 	end
 end
 
@@ -206,3 +261,14 @@ hook.Add( "HUDShouldDraw", "F_HIDE_HUD", function( name )
 		return false
 	end
 end )
+
+hook.Add( "PlayerBindPress", "OverrideChatbind", function( ply, bind, pressed )
+    if bind == "messagemode2" then
+		return true
+	end
+end )
+
+hook.Add("PhysicsCollide", "TEST", function(colData, col)
+	print(colData, col)
+end)
+

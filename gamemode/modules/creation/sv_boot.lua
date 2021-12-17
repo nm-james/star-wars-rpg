@@ -4,7 +4,8 @@ local function SQLInitialize()
     sql.Query([[CREATE TABLE IF NOT EXISTS Users
         (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            steamid TEXT
+            steamid TEXT,
+            inventory TEXT
         ) 
     ]])
     print("Users: ", sql.TableExists("Users"))
@@ -113,7 +114,7 @@ local function SQLInitialize()
     SortNewData( Falcon.Items )
 end
 
--- sql.Query("DROP TABLE Users_Quests")
+-- sql.Query("DROP TABLE Users")
 -- PrintTable(sql.Query( "SELECT * FROM Users_Quests"))
 -- SQLInitialize()
 

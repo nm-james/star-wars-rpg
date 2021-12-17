@@ -30,6 +30,6 @@ f.CreateFullModel = function( parent, w, h, x, y, extras )
     cntPnl:SetPos( 0, 0 )
     cntPnl.Paint = nil
 
-    return cntPnl, mdl
+    return cntPnl, mdl, backPnl
 end
 

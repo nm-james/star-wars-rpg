@@ -52,9 +52,9 @@ local modifierFunctions = {
 
 function ENT:Initialize()
 	self:SetMoveCollide( MOVECOLLIDE_FLY_BOUNCE )
-	self:SetBloodColor( BLOOD_COLOR_MECH )
+	self:SetBloodColor( DONT_BLEED )
 	self:PhysicsInit( SOLID_VPHYSICS )
-
+	self:SetCollisionGroup( COLLISION_GROUP_DEBRIS_TRIGGER )
 	self:SetModel( self.Model )
 
 	self.loco:SetStepHeight( 40 )
@@ -158,10 +158,9 @@ function ENT:Armor()
 end
 
 function ENT:FindEnemy()
-	local f = Falcon or {}
 	local spawnPos = self.SpawnLocation
 
-	local p = f.Players or player.GetAll()
+	local p = self.Players or player.GetAll()
 	if not p or #p == 0 then return false end
 
 	local availableP = {}
@@ -259,6 +258,7 @@ function ENT:OnContact( ent )
 	end
 end
 
+util.AddNetworkString("FALCON:NEXTBOTS:EFFECTS")
 function ENT:OnTakeDamage( dmginfo )
 	if ( not self.m_bApplyingDamage ) then
 		self.m_bApplyingDamage = true
@@ -272,6 +272,13 @@ function ENT:OnTakeDamage( dmginfo )
 			local scale = math.Clamp( pLevel / aLevel, 0.2, 999999999 )
 			dmginfo:ScaleDamage( scale )
 			self:TakeDamageInfo( dmginfo )
+
+			local p = self.Players or player.GetAll()
+			for _, ply in pairs( p ) do
+				net.Start("FALCON:NEXTBOTS:EFFECTS")
+					net.WriteVector( self:GetPos() )
+				net.Send( ply )
+			end
 		end
 
 		self.m_bApplyingDamage = false
@@ -279,7 +286,7 @@ function ENT:OnTakeDamage( dmginfo )
 end
 
 function ENT:GiveWeapon()
-    self.Weapon = ents.Create("prop_physics")
+    self.Weapon = ents.Create("falcon_npc_weapon")
     local pos = self:GetAttachment(self:LookupAttachment("anim_attachment_RH")).Pos
     self.Weapon:SetOwner(self)
     up = 0
@@ -290,8 +297,8 @@ function ENT:GiveWeapon()
 	aright = 11
     local AttachmentTab = self:GetAttachment(self:LookupAttachment("anim_attachment_RH"))
     self.Weapon:SetPos(AttachmentTab.Pos + AttachmentTab.Ang:Up()*up + AttachmentTab.Ang:Forward()*forward + AttachmentTab.Ang:Right()*right )
-    self.Weapon:SetModel(self.WeaponModel)
     self.Weapon:Spawn() 
+    self.Weapon:SetModel(self.WeaponModel)
     self.Weapon:PhysicsInit(SOLID_NONE)    
     self.Weapon:SetSolid(SOLID_NONE)
     AttachmentTab.Ang:RotateAroundAxis(AttachmentTab.Ang:Forward(),aforward)
@@ -313,7 +320,7 @@ function ENT:FireWeapon()
     bullet.Dir = enem:LocalToWorld(enem:OBBCenter()) - self:GetBonePosition(17)
     bullet.Spread = self.WeaponSpread
     bullet.Tracer = 1
-    bullet.TracerName = "lfs_laser_red_large"
+    bullet.TracerName = "f_lfs_laser_red_large"
     bullet.Force = 0
     bullet.Damage = 20
     bullet.AmmoType = "Pistol"
@@ -321,7 +328,9 @@ function ENT:FireWeapon()
       	dmginfo:SetDamageType(DMG_BULLET)
     end
     -- self:EmitSound("f_cigg/npcs/b2/fire_bullet.wav", 150, 100, 1, CHAN_AUTO)
-    self:FireBullets( bullet )
+	
+    self.Weapon:FireBullets( bullet, true )
+
 	-- self:StartActivity(ACT_GESTURE_RANGE_ATTACK_SHOTGUN)
 	self.CurAttackAmount = self.CurAttackAmount - 1
 end
@@ -411,9 +420,21 @@ function ENT:Think()
 	end
 end
 
+util.AddNetworkString("FALCON:NEXTBOTS:CREATERAGDOLL")
+function ENT:OnKilled( dmginfo )
+
+	hook.Call( "OnNPCKilled", GAMEMODE, self, dmginfo:GetAttacker(), dmginfo:GetInflictor() )
+
+	local p = self.Players or player.GetAll()
+	for _, ply in pairs( p ) do
+		net.Start("FALCON:NEXTBOTS:CREATERAGDOLL")
+			net.WriteVector( self:GetPos() )
+		net.Send( ply )
+	end
+	self:Remove()
+
+end
+
 -- function ENT:BodyUpdate()
 -- 	self:BodyMoveXY()
 -- end
-
-
-

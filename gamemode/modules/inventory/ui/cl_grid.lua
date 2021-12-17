@@ -7,21 +7,22 @@ Falcon.UI.Inventory.GridActive = Falcon.UI.Inventory.GridActive or {}
 
 local f = Falcon.UI.Inventory
 
-Falcon.Inventory = {
-    equipped = {
-        [1] = "ENHANCED WEAPON",
-    },
-    backpack = {
-        {
-            pos = { x = 2, y = 5 },
-            item = "ENHANCED WEAPON",
-        },
-        {
-            pos = { x = 6, y = 2 },
-            item = "ENHANCED WEAPONS",
-        }
-    },
-}
+-- Falcon.Inventory = {
+--     equipped = {
+--         [1] = "DC-15A [LEGENDARY]",
+--     },
+--     backpack = {
+--         {
+--             pos = { x = 2, y = 5 },
+--             item = "DC-15A [RARE]",
+--         },
+--         {
+--             pos = { x = 6, y = 2 },
+--             item = "DC-15S [EPIC]",
+--         }
+--     },
+-- }
+
 local shadowOverlay = Color( 0, 0, 0, 195 )
 local color_white = Color( 255, 255, 255, 255 )
 
@@ -33,33 +34,75 @@ f.ResetCurrentHovered = function()
 end
 
 f.MoveItem = function( nextPnl, nx, ny )
-    local itemID = Falcon.ItemsIdentifier[ Falcon.Inventory.backpack[f.ActiveItem].item ]
-    local i = Falcon.Items[ itemID ]
-    local it = Falcon.Inventory.backpack[f.ActiveItem]
-    local y, x = it.pos.y, it.pos.x
 
-    for runningY = y, (y + i.size.y) - 1 do
-        for runningX = x, (x + i.size.x) - 1 do
-            local p = Falcon.UI.Inventory.GridsData[runningY][runningX]
-            p.item = nil
-        end 
-    end
+    if f.EquipedItem then
+        local itemID = Falcon.ItemsIdentifier[ Falcon.Inventory.equipped[f.ActiveItem] ]
+        local i = Falcon.Items[ itemID ]
 
-    for _, it in pairs( Falcon.Inventory.backpack ) do
-        if it.pnl and it.pnl:IsValid() then
-            it.pnl:Remove()
+        local newItem = {
+            pos = { x = nx, y = ny },
+            item = Falcon.Inventory.equipped[f.ActiveItem]
+        }
+
+        -- ADD FROM BACKPACK
+        net.Start("FALCON:INVENTORY:ADDTOBACKPACK")
+            net.WriteInt( f.ActiveItem, 32 )
+            net.WriteInt( nx, 32 )
+            net.WriteInt( ny, 32 )
+        net.SendToServer()
+
+        -- REMOVE FROM EQUIPED
+        net.Start("FALCON:INVENTORY:REMOVEFROMEQUIP")
+            net.WriteInt( f.ActiveItem, 32 )
+        net.SendToServer()
+
+        table.insert( Falcon.Inventory.backpack, newItem )
+        Falcon.Inventory.equipped[f.ActiveItem] = nil
+
+        f.OpenMainContent( nextPnl:GetParent():GetParent():GetParent():GetParent():GetParent() )
+    else
+        local itemID = Falcon.ItemsIdentifier[ Falcon.Inventory.backpack[f.ActiveItem].item ]
+        local i = Falcon.Items[ itemID ]
+
+        net.Start("FALCON:INVENTORY:MOVEINBACKPACK")
+            net.WriteInt( f.ActiveItem, 32 )
+            net.WriteInt( nx, 32 )
+            net.WriteInt( ny, 32 )
+        net.SendToServer()
+
+        local it = Falcon.Inventory.backpack[f.ActiveItem]
+        local y, x = it.pos.y, it.pos.x
+    
+        for runningY = y, (y + i.size.y) - 1 do
+            for runningX = x, (x + i.size.x) - 1 do
+                local p = Falcon.UI.Inventory.GridsData[runningY][runningX]
+                p.item = nil
+            end 
         end
+
+        for _, it in pairs( Falcon.Inventory.backpack ) do
+            if it.pnl and it.pnl:IsValid() then
+                it.pnl:Remove()
+            end
+        end
+    
+        it.pos.x = nx
+        it.pos.y = ny
+
+        f.LoadInventoryItems( nextPnl:GetParent() )
     end
-
-    it.pos.x = nx
-    it.pos.y = ny
-
-    f.LoadInventoryItems( nextPnl:GetParent() )
+    
 end
 
 f.EmulateNextTaken = function( curPnl, x, y )
     f.ResetCurrentHovered()
-    local itemID = Falcon.ItemsIdentifier[ Falcon.Inventory.backpack[f.ActiveItem].item ]
+    local itemString
+    if f.EquipedItem then
+        itemString = Falcon.Inventory.equipped[f.ActiveItem]
+    else
+        itemString = Falcon.Inventory.backpack[f.ActiveItem].item
+    end
+    local itemID = Falcon.ItemsIdentifier[ itemString ]
     local i = Falcon.Items[ itemID ]
 
     f.ActiveColor = Color( 0, 155, 0, 125 )
@@ -131,16 +174,19 @@ f.LoadInventoryItems = function( self )
         local btn = vgui.Create("DButton", p)
         btn:SetSize( covidW, covidH )
         btn.Paint = function( self, w, h )
-            surface.SetDrawColor( color_white )
+            surface.SetDrawColor( Falcon.ItemsRarities.Colors[i.rarity] )
             surface.DrawOutlinedRect( 0, 0, w, h )
         end
         btn.DoClick = function( self )
             if f.ActiveItem == itemID then return end
             f.ActiveItem = itemID
+            f.ActiveCategory = i.category
+            f.EquipedItem = false
             f.ResetCurrentHovered()
         end
         btn.DoRightClick = function( self )
             f.ActiveItem = nil
+            f.ActiveCategory = nil
             f.ResetCurrentHovered()
         end
 
@@ -183,6 +229,8 @@ f.LoadGrids = function( self )
                 f.MoveItem( self, x, y )
                 f.ResetCurrentHovered()
                 f.ActiveItem = nil
+                f.ActiveCategory = nil
+                f.EquipedItem = false
             end
             Falcon.UI.Inventory.GridsData[y][x] = p
         end
@@ -197,6 +245,8 @@ f.OpenInventoryGrid = function( parent )
     p.Paint = function( self, w, h )
         surface.SetDrawColor( shadowOverlay )
         surface.DrawRect( 0, 0, w, h )
+        surface.SetDrawColor( color_white )
+        surface.DrawOutlinedRect( 0, 0, w, h )
     end
 
     local cP = vgui.Create("DScrollPanel", p)

@@ -2,19 +2,58 @@ Falcon = Falcon or {}
 Falcon.ItemsIdentifier = {}
 Falcon.ItemsEntities = Falcon.ItemsEntities or {}
 Falcon.Items = {}
+Falcon.ItemsRarities = {}
+Falcon.ItemsRarities.Text = {
+    [1] = "COMMON",
+    [2] = "UNCOMMON",
+    [3] = "RARE",
+    [4] = "EPIC",
+    [5] = "LEGENDARY",
+}
+Falcon.ItemsRarities.Colors = {
+    [1] = Color( 185, 185, 185 ),
+    [2] = Color( 25, 175, 25 ),
+    [3] = Color( 0, 100, 210 ),
+    [4] = Color( 155, 15, 155 ),
+    [5] = Color( 255, 255, 15 ),
+}
 
 local f = Falcon
 f.CreateItem = function( name, tbl )
-    local newTbl = tbl
-    newTbl.name = name
-
-    local c = table.Count( Falcon.Items ) + 1
-    Falcon.Items[c] = newTbl
-    Falcon.ItemsIdentifier[name] = c
+    tbl.rarities = tbl.rarities or {}
+    local minRarity = tbl.rarities.min or 1
+    local maxRarity = tbl.rarities.max or 3
+    for i = minRarity, maxRarity do
+        local newTbl = table.Copy( tbl )
+        newTbl.name = name .. ' [' .. Falcon.ItemsRarities.Text[i] .. ']'
+        newTbl.rarity = i
+        newTbl.rarities = nil
+        local c = table.Count( Falcon.Items ) + 1
+        Falcon.Items[c] = newTbl
+        Falcon.ItemsIdentifier[newTbl.name] = c
+        
+    end
 end
 
-f.CreateItem( "ENHANCED WEAPON", {
-    size = { x = 2, y = 2 },
+f.CreateItem( "DC-15A", {
+    size = { x = 4, y = 3 },
+    category = 1,
+    rarities = {min = 1, max = 5},
+    swep = "falcon_dc15a",
+    model = {
+        string = "models/sw_battlefront/weapons/dc15a_rifle.mdl",
+        inventory = {
+            pos = Vector(0, -20, 0),
+            ang = Angle(5, 90, 0),
+            fov = 75,
+        },
+    },
+} )
+
+f.CreateItem( "DC-15S", {
+    size = { x = 3, y = 2 },
+    category = 2,
+    rarities = {min = 1, max = 5},
     model = {
         string = "models/sw_battlefront/weapons/dc15a_rifle.mdl",
         inventory = {
@@ -23,18 +62,6 @@ f.CreateItem( "ENHANCED WEAPON", {
             fov = 75,
         },
         
-    },
-} )
-
-f.CreateItem( "ENHANCED WEAPONS", {
-    size = { x = 4, y = 3 },
-    model = {
-        string = "models/sw_battlefront/weapons/dc15a_rifle.mdl",
-        inventory = {
-            pos = Vector(0, -20, 0),
-            ang = Angle(5, 90, 0),
-            fov = 75,
-        },
     },
 } )
 
@@ -68,3 +95,4 @@ if CLIENT then
         end
     end)
 end
+} )

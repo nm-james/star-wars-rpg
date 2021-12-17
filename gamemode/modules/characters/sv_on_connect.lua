@@ -1,6 +1,22 @@
 Falcon = Falcon or {}
 
 util.AddNetworkString("FALCON:SENDCONTENT")
+local function CreateUserID( ply )
+    sql.Query("INSERT INTO Users(`steamid`, `inventory`) VALUES('" .. ply:SteamID64() .. "', '" .. util.TableToJSON({equipped = {
+        [1] = "DC-15A [LEGENDARY]",
+    },
+    backpack = {
+        {
+            pos = { x = 2, y = 5 },
+            item = "DC-15A [RARE]",
+        },
+        {
+            pos = { x = 6, y = 2 },
+            item = "DC-15S [EPIC]",
+        }
+    },}) .. "')")
+    return Falcon.GetUserID( ply )
+end
 Falcon.GetUserID = function( ply )
     local res = sql.Query("SELECT id FROM Users WHERE steamid = " .. ply:SteamID64()) or {}
 
@@ -67,11 +83,19 @@ local function GetPlayerContentData( ply )
     local id = Falcon.GetUserID( ply )
     if id then
         tbl.Quests = sql.Query( "SELECT quest, status FROM Users_Quests WHERE user = " .. id ) or {}
+        tbl.Inventory = Falcon.GetUserInventory( ply )
+        local inv = tbl.Inventory.equipped
+        if inv[1] then
+            local invPrimary = Falcon.Items[Falcon.ItemsIdentifier[inv[1]]]
+            ply:SetNWString("FALCON:PRIMARY:WEAPON", invPrimary.swep)
+        end
+        if inv[2] then
+            local invSecondary = Falcon.Items[Falcon.ItemsIdentifier[inv[2]]]
+            ply:SetNWString("FALCON:PRIMARY:SECONDARY", invSecondary.swep)
+        end
 
         Falcon.SortQuestStatus( ply, tbl.Quests )
     end
-
-    PrintTable(tbl.Quests)
 
     return tbl
 end

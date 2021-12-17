@@ -8,6 +8,13 @@ function GM:PlayerSpawn(ply, transition)
     ply:SetArmor( 750 )
     ply:SetHealth( 500 )
     ply:SetMaxHealth( 500 )
+    ply:SetRunSpeed( 250 )
+    ply:SetWalkSpeed( 250 / 1.6 )
+
+    ply:Give(ply:GetNWString("FALCON:PRIMARY:WEAPON",""))
+
+    ply:SetCollisionGroup( COLLISION_GROUP_IN_VEHICLE )
+    ply:SetCustomCollisionCheck( true )
 end
 
 function GM:PlayerDeath( ply )
