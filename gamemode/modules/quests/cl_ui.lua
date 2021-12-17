@@ -45,6 +45,7 @@ local function UpdateQuests( questId, npc )
     else
         if Falcon.Player.Quests[questId] ~= 2 then return end
         Falcon.Player.Quests[questId] = 3
+        Falcon.Player.CompletedQuests[questId] = true
         -- give player awards etc etc
         -- Finish the quest
         net.Start("FALCON:QUESTS:FINISHQUEST")

@@ -39,6 +39,7 @@ net.Receive("FALCON:QUESTS:FINISHQUEST", function( len, ply )
     ply.ActiveQuests[questRequesting] = nil
 end)
 
+
 util.AddNetworkString("FALCON:QUESTS:OBJECTIVE:TOCLIENT")
 -- Objective Type 1
 function FOBJ_KillUpdate( ply, class )
@@ -61,7 +62,6 @@ function FOBJ_KillUpdate( ply, class )
                 net.WriteUInt( questID, 32 )
                 net.WriteUInt( obj.Type, 32 )
                 net.WriteUInt( currentObject, 32 )
-
                 -- actual value
                 net.WriteUInt( newVal, 32 )
             net.Send( ply )
@@ -71,9 +71,53 @@ function FOBJ_KillUpdate( ply, class )
         end
     end
 end 
-
-
 hook.Add("OnNPCKilled", "OBJECTIVE_CHECK_1", function( npc, attacker )
     if not attacker:IsPlayer() then return end
     FOBJ_KillUpdate( attacker, npc:GetClass() )
 end)
+
+
+-- Objective Type 3/4/5INIT
+util.AddNetworkString("FALCON:QUESTS:OBJECTIVE:3")
+net.Receive("FALCON:QUESTS:OBJECTIVE:3", function( len, ply )
+    local quest = net.ReadInt( 32 )
+    local currentObject = ply.ActiveQuests[quest].ActiveObjective
+    ply.ActiveQuests[quest].Objectives[currentObject] = true
+    local value = ply.ActiveQuests[quest].Objectives[currentObject]
+    local objData = Falcon.Quests[quest].Objectives[currentObject]
+    if objData.Planet and objData.Planet ~= ply.Location then return false end
+    if objData.Type == 3 and ply:GetPos():DistToSqr( objData.Position ) > (objData.Distance or 25000) or objData.Type == 4 and ply:GetPos():DistToSqr( objData.Position ) > 15000 then return false end
+    if objData.Type == 5 and ply:GetPos():DistToSqr( objData.Position ) <= (objData.Distance or 25000) then
+        ply.ActiveQuests[quest].Objectives[currentObject] = CurTime() + objData.Needed
+        return
+    end
+    ply.ActiveQuests[quest].ActiveObjective = math.Clamp(ply.ActiveQuests[quest].ActiveObjective + 1, 0, #ply.ActiveQuests[quest].Objectives)
+
+    net.Start("FALCON:QUESTS:OBJECTIVE:TOCLIENT")
+        net.WriteUInt( quest, 32 )
+        net.WriteUInt( objData.Type, 32 )
+        net.WriteUInt( currentObject, 32 )
+        net.WriteBool( true )
+    net.Send( ply )
+end)
+
+-- Objective Type 5POST
+util.AddNetworkString("FALCON:QUESTS:OBJECTIVE:5")
+net.Receive("FALCON:QUESTS:OBJECTIVE:5", function( len, ply )
+    local quest = net.ReadInt( 32 )
+    local currentObject = ply.ActiveQuests[quest].ActiveObjective
+    local value = ply.ActiveQuests[quest].Objectives[currentObject]
+    local objData = Falcon.Quests[quest].Objectives[currentObject]
+    
+    -- CHECK WHETHER OBJ HAS BEEN SECURED OR HELD
+    if value > CurTime() then return end
+
+    ply.ActiveQuests[quest].ActiveObjective = math.Clamp(ply.ActiveQuests[quest].ActiveObjective + 1, 0, #ply.ActiveQuests[quest].Objectives)
+    
+    net.Start("FALCON:QUESTS:OBJECTIVE:TOCLIENT")
+        net.WriteUInt( quest, 32 )
+        net.WriteUInt( objData.Type, 32 )
+        net.WriteUInt( currentObject, 32 )
+    net.Send( ply )
+end)
+-- add a player death hook to reset

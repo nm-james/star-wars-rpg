@@ -14,14 +14,14 @@ local function DrawNPCsInteractions()
         if ent.Name and ent.Name == "JIMMY! [NO NAME]" then continue end
         if ent.Options and table.IsEmpty(ent.Options.Dialogue) then continue end
 
-        local s = (ent:GetPos() + Vector( 0, 0, 50 )):ToScreen()
+        local s = ((ent.OriginalPos or ent:GetPos()) + Vector( 0, 0, 40 )):ToScreen()
         
         draw.NoTexture()
         surface.SetDrawColor( Color( 255, 255, 255 ) )
         surface.SetMaterial(diagonal)
         surface.DrawTexturedRect( s.x - (w * 0.05 / 2), s.y - (w * 0.05 / 2), w * 0.05, w * 0.05 )
 
-        if s.x > (w * 0.475) and s.x < (w * 0.525) and s.y > ((h * 0.5) - (w * 0.05 / 2)) and s.y < ((h * 0.5) + (w * 0.05 / 2)) and ply:GetPos():DistToSqr( ent:GetPos() ) < (ent.InteractDistance or 2000) then
+        if s.x > (w * 0.475) and s.x < (w * 0.525) and s.y > ((h * 0.5) - (w * 0.05 / 2)) and s.y < ((h * 0.5) + (w * 0.05 / 2)) and ply:GetPos():DistToSqr( ent:GetPos() ) < (ent.InteractDistance or 7500) then
             if Falcon.StartInteractionTime ~= 0 then
                 local nextI = (ent.InteractionTime or 1)
                 local percentageInteracted = ((CurTime() - Falcon.StartInteractionTime) / nextI)
@@ -64,6 +64,13 @@ local function InteractHandler()
     local cone = ents.FindInCone( ply:EyePos(), ply:GetAimVector(), 400, math.cos( math.rad( 50 ) ) )
     for _, ent in pairs( cone ) do
         if not ent.FalconClient then continue end
+        table.insert(Falcon.InteractionActiveEntities, ent)
+    end
+
+    for _, ent in pairs( Falcon.ItemsEntities ) do
+        if not ent.FalconClient then continue end
+        if not ent.Interaction then continue end
+        if ply:GetPos():DistToSqr( ent:GetPos() ) > 7500 then continue end
         table.insert(Falcon.InteractionActiveEntities, ent)
     end
 

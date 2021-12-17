@@ -2,9 +2,12 @@ Falcon = Falcon or {}
 
 util.AddNetworkString("FALCON:SENDCONTENT")
 Falcon.GetUserID = function( ply )
-    local res = sql.Query("SELECT id FROM Users WHERE steamid = " .. ply:SteamID64())
+    local res = sql.Query("SELECT id FROM Users WHERE steamid = " .. ply:SteamID64()) or {}
 
-    if not res[1] or not res[1].id then return end
+    if not res[1] or not res[1].id then 
+        sql.Query("INSERT INTO Users(`steamid`) VALUES('" .. ply:SteamID64() .. "')")
+        return Falcon.GetUserID( ply )
+    end
     return res[1].id
 end
 
@@ -22,16 +25,13 @@ end
 -- 10 = TRANSPORT ITEM
 -- 11 = DEFEND TRANSPORT
 local types = {
-    [1] = function()
-        return 0
-    end,
-    [2] = function()
-        return false
-    end,
-    [3] = function()
-        return false
-    end,
+    [1] = 0,
+    [2] = false,
+    [3] = false,
+    [4] = false,
+    [5] = 0,
 }
+
 Falcon.SortQuestStatus = function( ply, quests )
     for _, q in pairs( quests ) do
         local sts = tonumber(q.status)
@@ -46,7 +46,7 @@ Falcon.SortQuestStatus = function( ply, quests )
 
             for objID, objective in pairs( quest.Objectives or {} ) do
                 if ply.ActiveQuests[que].Objectives[objID] then continue end
-                ply.ActiveQuests[que].Objectives[objID] = types[objective.Type]()
+                ply.ActiveQuests[que].Objectives[objID] = types[objective.Type]
             end
         end
     end

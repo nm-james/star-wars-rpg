@@ -9,12 +9,9 @@ Falcon.Quests[1].Requirement = function( ply )
 end
 
 Falcon.Quests[1].Objectives = {
-    { Type = 1, Text = "Kill 5 B1 Battledroids!", Value = 0, Needed = 5, Class = "npc_crow", },
-    { Type = 1, Text = "Kill 5 B1 Battledroids!", Value = 0, Needed = 5, Class = "npc_crow", },
-    { Type = 1, Text = "Kill 5 B1 Battledroids!", Value = 0, Needed = 5, Class = "npc_crow", },
-    { Type = 1, Text = "Kill 5 B1 Battledroids!", Value = 0, Needed = 5, Class = "npc_crow", },
-    -- { Type = 2, Text = "Kill a Droideka!", Value = false, Needed = true, Class = "falcon_hostile_cis_droideka", },
-    -- { Type = 3, Text = "Move to XYZ", Value = false, Needed = true, Distance = 500, Position = Vector(3086.245117, -4240.182617, 8197.87695), },
+    -- { Type = 1, Text = "Kill 5 B1 Battledroids!", Value = 0, Needed = 5, Class = "npc_crow", },
+    { Type = 4, Text = "Collect Test", Value = false, Needed = true, Position = Vector(2526.759521, -6045.755371, 12891.031250), Name = 'TESTTSTSTSTSTTSTTSST', Model = "models/props_borealis/bluebarrel001.mdl" },
+    { Type = 5, Text = "Move to XYZ and Hold", Value = 0, Needed = 30, Distance = 25000, Position = Vector(2734.254639, -5604.281250, 12950.031250), },
 }
 
 

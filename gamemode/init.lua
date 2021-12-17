@@ -15,7 +15,7 @@ hook.Add("PlayerSay", "TESTINGTEXT", function( ply, text )
     end
 
     if text == "/model" then
-        ply:SetModel("models/sally/tkaro/bx_commando_droid.mdl")
+        ply:SetNoDraw( false )
     end
 end)
 

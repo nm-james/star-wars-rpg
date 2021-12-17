@@ -1,0 +1,1 @@
+Falcon = Falcon or {}
