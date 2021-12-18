@@ -6,6 +6,7 @@ Falcon.GetUserInventory = function( ply )
     SortNewData( inv )
     return inv
 end
+
 Falcon.SaveUserInventory = function( ply, inv )
     local userID = Falcon.GetUserID( ply )
     if not userID then return end
@@ -15,6 +16,7 @@ end
 local itemHandler = {
     [1] = function( ply, itemData )
         ply:Give(itemData.swep)
+        ply:SetNWString("FALCON:PRIMARY:WEAPON", itemData.swep)
     end,
     [2] = function( ply, itemData )
 
@@ -23,6 +25,7 @@ local itemHandler = {
 local itemRemover = {
     [1] = function( ply, itemData )
         ply:StripWeapon(itemData.swep)
+        ply:SetNWString("FALCON:PRIMARY:WEAPON", "")
     end,
     [2] = function( ply, itemData )
 

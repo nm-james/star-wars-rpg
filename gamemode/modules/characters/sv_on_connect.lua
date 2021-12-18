@@ -2,31 +2,34 @@ Falcon = Falcon or {}
 
 util.AddNetworkString("FALCON:SENDCONTENT")
 local function CreateUserID( ply )
-    sql.Query("INSERT INTO Users(`steamid`, `inventory`) VALUES('" .. ply:SteamID64() .. "', '" .. util.TableToJSON({equipped = {
-        [1] = "DC-15A [LEGENDARY]",
-    },
-    backpack = {
-        {
-            pos = { x = 2, y = 5 },
-            item = "DC-15A [RARE]",
+    local inv = {
+        equipped = {
+            [1] = "DC-15A [LEGENDARY]",
         },
-        {
-            pos = { x = 6, y = 2 },
-            item = "DC-15S [EPIC]",
+        backpack = {
+            {
+                pos = { x = 2, y = 5 },
+                item = "DC-15A [RARE]",
+            },
+            {
+                pos = { x = 6, y = 2 },
+                item = "DC-15S [EPIC]",
+            }
         }
-    },}) .. "')")
+    }
+    local convertedInv = util.TableToJSON(inv)
+    sql.Query("INSERT INTO Users(`steamid`, `inventory`) VALUES('" .. ply:SteamID64() .. "', '" .. convertedInv .. "')")
     return Falcon.GetUserID( ply )
 end
 Falcon.GetUserID = function( ply )
     local res = sql.Query("SELECT id FROM Users WHERE steamid = " .. ply:SteamID64()) or {}
 
     if not res[1] or not res[1].id then 
-        sql.Query("INSERT INTO Users(`steamid`) VALUES('" .. ply:SteamID64() .. "')")
+        CreateUserID( ply )
         return Falcon.GetUserID( ply )
     end
     return res[1].id
 end
-
 
 -------------- OBJECTIVE TYPES --------------
 -- 1 = KILLING NPCS (TOTAL)
@@ -81,11 +84,13 @@ local function GetPlayerContentData( ply )
     tbl.NPCs = Falcon.NPCs
     tbl.Quests = {}
     local id = Falcon.GetUserID( ply )
+    print('Users', id)
     if id then
         tbl.Quests = sql.Query( "SELECT quest, status FROM Users_Quests WHERE user = " .. id ) or {}
         tbl.Inventory = Falcon.GetUserInventory( ply )
         local inv = tbl.Inventory.equipped
         if inv[1] then
+            print(inv[1])
             local invPrimary = Falcon.Items[Falcon.ItemsIdentifier[inv[1]]]
             ply:SetNWString("FALCON:PRIMARY:WEAPON", invPrimary.swep)
         end

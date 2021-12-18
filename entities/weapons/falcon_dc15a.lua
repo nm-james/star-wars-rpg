@@ -75,6 +75,7 @@ function SWEP:PrimaryAttack()
 
    -- sound.Play( , self:GetPos() )
    self:EmitSound( pew, 75, 100, 0.25, CHAN_WEAPON  )
+   self:SetClip1( math.Clamp(self:Clip1() - self.Primary.TakeAmmo, 0, self.Primary.ClipSize) )
 
    self:SetNextPrimaryFire( CurTime() + 0.16 )
 end

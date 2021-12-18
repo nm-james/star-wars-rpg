@@ -2,7 +2,7 @@ AddCSLuaFile()
 SWEP.Type                  = "anim"
 SWEP.Base                  = "weapon_base"
 
-SWEP.PrintName          = "DC-17"
+SWEP.PrintName          = "DC-15SE"
 SWEP.Slot               = 4
 SWEP.SlotPos            = 1
 SWEP.ViewModelFlip      = false
@@ -11,9 +11,9 @@ SWEP.Category           = "Falcon's SWEPs"
 
 SWEP.Primary.Damage = 5 --The amount of damage will the weapon do
 SWEP.Primary.TakeAmmo = 1 -- How much ammo will be taken per shot
-SWEP.Primary.ClipSize = 15  -- How much bullets are in the mag
+SWEP.Primary.ClipSize = 50  -- How much bullets are in the mag
 SWEP.Primary.Ammo = "AR2" --The ammo type will it use
-SWEP.Primary.DefaultClip = 15 -- How much bullets preloaded when spawned
+SWEP.Primary.DefaultClip = 50 -- How much bullets preloaded when spawned
 SWEP.Primary.Spread = 0.75 -- The spread when shot
 SWEP.Primary.NumberofShots = 1 -- Number of bullets when shot
 SWEP.Primary.Automatic = true -- Is it automatic
@@ -21,7 +21,7 @@ SWEP.Primary.Recoil = 0.2 -- The amount of recoil
 SWEP.Primary.Force = 1
 SWEP.Spawnable             = true
 SWEP.UseHands              = true
-SWEP.WorldModel            = "models/sw_battlefront/weapons/dc17_blaster.mdl"
+SWEP.WorldModel            = "models/cs574/weapons/dc15se.mdl"
 
 Falcon = Falcon or {}
 
@@ -56,7 +56,7 @@ function SWEP:Holster()
    return true 
 end
 
-local pew = Sound('pa/weapons/dc17.wav')
+local pew = Sound('pa/weapons/dc15s.wav')
 function SWEP:PrimaryAttack()
 	if ( self:Clip1() <= 0 ) then return end
    if self:GetNextPrimaryFire() >= CurTime() then return end
@@ -75,10 +75,9 @@ function SWEP:PrimaryAttack()
 
    -- sound.Play( , self:GetPos() )
    self:EmitSound( pew, 75, 100, 0.25, CHAN_WEAPON  )
-
    self:SetClip1( math.Clamp(self:Clip1() - self.Primary.TakeAmmo, 0, self.Primary.ClipSize) )
 
-   self:SetNextPrimaryFire( CurTime() + 0.225 )
+   self:SetNextPrimaryFire( CurTime() + 0.16 )
 end
 
 function SWEP:SecondaryAttack()
@@ -95,10 +94,10 @@ end
 
 function SWEP:Think()
    if self.Owner:KeyDown(IN_ATTACK2) then
-      self:SetHoldType( "revolver" )
+      self:SetHoldType( "ar2" )
       self.Primary.Spread = 0.15
    else
-      self:SetHoldType( "pistol" )
+      self:SetHoldType( "shotgun" )
       self.Primary.Spread = 0.75
    end
 end
@@ -106,6 +105,10 @@ end
 if CLIENT then
    local WorldModel = ClientsideModel(SWEP.WorldModel)
    WorldModel:SetNoDraw(true)
+   local att1 = ClientsideModel("models/sw_battlefront/weapons/2019/dc15s_stock2.mdl")
+   att1:SetNoDraw(true)
+
+   WorldModel:SetMaterial("1camo_test/dc15s/l115/aqua.vmt")
 
    function SWEP:DrawWorldModel()
       local _Owner = self:GetOwner()
@@ -126,14 +129,22 @@ if CLIENT then
       
             WorldModel:SetPos(newPos)
             WorldModel:SetAngles(newAng)
-      
             WorldModel:SetupBones()
+
+            att1:SetPos(newPos)
+            att1:SetAngles(newAng)
+            att1:SetupBones()
          else
             WorldModel:SetPos(self:GetPos())
             WorldModel:SetAngles(self:GetAngles())
+            att1:SetPos(WorldModel:GetPos())
+            att1:SetAngles(WorldModel:GetAngles())
+            att2:SetPos(WorldModel:GetPos())
+            att2:SetAngles(WorldModel:GetAngles())
          end
       
          WorldModel:DrawModel()
+         att1:DrawModel()
       end
    end
 

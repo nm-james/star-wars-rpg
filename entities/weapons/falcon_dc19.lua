@@ -2,7 +2,7 @@ AddCSLuaFile()
 SWEP.Type                  = "anim"
 SWEP.Base                  = "weapon_base"
 
-SWEP.PrintName          = "DC-17"
+SWEP.PrintName          = "DC-19"
 SWEP.Slot               = 4
 SWEP.SlotPos            = 1
 SWEP.ViewModelFlip      = false
@@ -11,9 +11,9 @@ SWEP.Category           = "Falcon's SWEPs"
 
 SWEP.Primary.Damage = 5 --The amount of damage will the weapon do
 SWEP.Primary.TakeAmmo = 1 -- How much ammo will be taken per shot
-SWEP.Primary.ClipSize = 15  -- How much bullets are in the mag
+SWEP.Primary.ClipSize = 20  -- How much bullets are in the mag
 SWEP.Primary.Ammo = "AR2" --The ammo type will it use
-SWEP.Primary.DefaultClip = 15 -- How much bullets preloaded when spawned
+SWEP.Primary.DefaultClip = 20 -- How much bullets preloaded when spawned
 SWEP.Primary.Spread = 0.75 -- The spread when shot
 SWEP.Primary.NumberofShots = 1 -- Number of bullets when shot
 SWEP.Primary.Automatic = true -- Is it automatic
@@ -21,7 +21,7 @@ SWEP.Primary.Recoil = 0.2 -- The amount of recoil
 SWEP.Primary.Force = 1
 SWEP.Spawnable             = true
 SWEP.UseHands              = true
-SWEP.WorldModel            = "models/sw_battlefront/weapons/dc17_blaster.mdl"
+SWEP.WorldModel            = "models/sw_battlefront/weapons/2019/dc15s_base1.mdl"
 
 Falcon = Falcon or {}
 
@@ -56,7 +56,7 @@ function SWEP:Holster()
    return true 
 end
 
-local pew = Sound('pa/weapons/dc17.wav')
+local pew = Sound('pa/weapons/dc15s.wav')
 function SWEP:PrimaryAttack()
 	if ( self:Clip1() <= 0 ) then return end
    if self:GetNextPrimaryFire() >= CurTime() then return end

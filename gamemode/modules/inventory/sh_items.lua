@@ -50,12 +50,13 @@ f.CreateItem( "DC-15A", {
     },
 } )
 
-f.CreateItem( "DC-15S", {
+f.CreateItem( "Z6", {
     size = { x = 3, y = 2 },
     category = 2,
-    rarities = {min = 1, max = 5},
+    rarities = {min = 4, max = 5},
+    swep = "falcon_z6",
     model = {
-        string = "models/sw_battlefront/weapons/dc15a_rifle.mdl",
+        string = "models/sw_battlefront/weapons/z6_rotary_cannon.mdl",
         inventory = {
             pos = Vector(0, -20, 0),
             ang = Angle(5, 90, 0),
@@ -64,6 +65,40 @@ f.CreateItem( "DC-15S", {
         
     },
 } )
+
+f.CreateItem( "DC-15A [SHOTGUN]", {
+    size = { x = 4, y = 3 },
+    category = 2,
+    rarities = {min = 1, max = 5},
+    swep = "falcon_dc15a_shotgun",
+    model = {
+        string = "models/sw_battlefront/weapons/dc15a_rifle.mdl",
+        inventory = {
+            pos = Vector(0, -20, 0),
+            ang = Angle(5, 90, 0),
+            fov = 75,
+        },
+    },
+} )
+
+f.CreateItem( "DC-15S", {
+    size = { x = 3, y = 2 },
+    category = 2,
+    rarities = {min = 1, max = 5},
+    swep = "falcon_dc15s",
+    model = {
+        string = "models/sw_battlefront/weapons/dc15s_carbine.mdl",
+        inventory = {
+            pos = Vector(0, -20, 0),
+            ang = Angle(5, 90, 0),
+            fov = 75,
+        },
+        
+    },
+} )
+
+
+
 
 PrintTable(Falcon.ItemsIdentifier)
 
@@ -95,4 +130,3 @@ if CLIENT then
         end
     end)
 end
-} )
